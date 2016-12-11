@@ -1,6 +1,6 @@
 {
   "name": "mokit-router",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "mokit-router",
   "main": "./lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "author": "",
   "license": "Apache License",
   "peerDependencies": {
-    "mokit": "^3.0.0-beta30"
+    "mokit": "^3.0.0-beta31"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -47,9 +47,7 @@
     "webpack": "^1.13.3"
   },
   "dependencies": {
+    "mokit": "^3.0.0-beta34",
     "mokit-plugin": "^1.0.5"
-  },
-  "peerDependencies": {
-    "mokit": "^3.0.0-beta31"
   }
 }
