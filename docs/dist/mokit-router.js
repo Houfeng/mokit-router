@@ -83,6 +83,7 @@
 	var mokit = __webpack_require__(1).mokit;
 	var utils = mokit.utils;
 	var Class = mokit.Class;
+	var EventEmitter = mokit.EventEmitter;
 	var Component = mokit.Component;
 	var RouterBase = __webpack_require__(3);
 	var HashDirver = __webpack_require__(5);
@@ -104,6 +105,7 @@
 	    this.$super();
 	    options = options || utils.create(null);
 	    if (options.view) this.view = options.view;
+	    this.emitter = new EventEmitter(this);
 	    this.dirvier = options.dirvier || new HashDirver(this);
 	    this.dirvier.on('changed', this._onChanged.bind(this));
 	  },
@@ -137,14 +139,19 @@
 	   */
 	  _onChanged: function /*istanbul ignore next*/_onChanged(path) {
 	    path = path || '/';
-	    var routes = this.get(path.split('?')[0]);
+	    var fromPath = this.dirvier.get();
+	    var toPath = this.resolveUri(path, fromPath);
+	    toPath = path.split('?')[0].split('!')[0];
+	    var routes = this.get(toPath);
 	    if (!routes || routes.length < 1) return;
 	    this.route = routes[0];
-	    this.route.path = path;
+	    this.route.path = toPath;
 	    this.route.query = this.parseQuery();
 	    if (this.view) {
 	      this.view.component = this.route.component;
 	    }
+	    this.emitter.$emit('enter', toPath);
+	    this.emitter.$emit('leave', fromPath);
 	  },
 	
 	  /**
@@ -1226,7 +1233,7 @@
 	   */
 	  set: function /*istanbul ignore next*/set(path) {
 	    path = path || ROOT_PATH;
-	    location.hash = SEPARATOR + this.router.resolveUri(path, this.get());
+	    location.hash = SEPARATOR + path;
 	  },
 	
 	  /**
