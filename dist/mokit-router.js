@@ -232,7 +232,7 @@
 	    this.app = new root({
 	      _router: this
 	    });
-	    this.app.$mount(element, true);
+	    this.app.$appendTo(element);
 	    return this.app;
 	  }
 	
@@ -275,7 +275,7 @@
 	  owner.component('RouterView', RouterView);
 	
 	  //添加 link 指令
-	  owner.directives.push(LinkDirective);
+	  owner.directive('link', LinkDirective);
 	};
 	
 	module.exports = Router;
@@ -1295,8 +1295,6 @@
 	var EventEmitter = mokit.EventEmitter;
 	
 	module.exports = new Directive({
-	  name: 'link',
-	  type: Directive.TYPE_ATTRIBUTE,
 	  literal: true,
 	
 	  bind: function /*istanbul ignore next*/bind() {

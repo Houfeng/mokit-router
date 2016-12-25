@@ -1,9 +1,9 @@
-(function () {
+//(function () {
 
   'use strict';
 
   var Component1 = new mokit.Component({
-    template: '<span m:on:click="clickMe">{{name}}: {{$route.query.say||"..."}}</span>',
+    template: '<span m:on:click="clickMe">{{name}}</span>',
     properties: { name: 'Component1' },
     clickMe: function () {
       alert('My name is' + this.name);
@@ -31,4 +31,4 @@
 
   router.start(App, document.getElementById('app'));
 
-})();
+//})();
