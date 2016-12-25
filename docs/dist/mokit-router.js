@@ -148,7 +148,9 @@
 	    this.route.path = toPath;
 	    this.route.query = this.parseQuery();
 	    if (this.view) {
-	      this.view.component = this.route.component;
+	      setTimeout(function () {
+	        this.view.component = this.route.component;
+	      }.bind(this), 0);
 	    }
 	    this.emitter.$emit('enter', toPath);
 	    this.emitter.$emit('leave', fromPath);
