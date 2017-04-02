@@ -1,6 +1,6 @@
 {
   "name": "mokit-router",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "mokit-router",
   "main": "./lib/index.js",
   "scripts": {
@@ -47,6 +47,7 @@
     "webpack": "^1.13.3"
   },
   "dependencies": {
+    "general-router": "^0.0.3",
     "mokit": "^3.0.0-beta43",
     "mokit-plugin": "^1.0.5"
   }

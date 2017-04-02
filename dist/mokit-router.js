@@ -149,7 +149,8 @@
 	    this.route.query = this.parseQuery();
 	    if (this.view) {
 	      setTimeout(function () {
-	        this.view.component = this.route.component;
+	        this.view.switchTo(this.route.component, this._transition);
+	        this._transition = null;
 	      }.bind(this), 0);
 	    }
 	    this.emitter.$emit('enter', toPath);
@@ -159,9 +160,11 @@
 	  /**
 	   * 转到一个路径
 	   * @param {string} path 将要转到的路径
+	   * @param {Object} transition 转场动画
 	   * @returns {void} 无返回
 	   */
-	  go: function /*istanbul ignore next*/go(path) {
+	  go: function /*istanbul ignore next*/go(path, transition) {
+	    this._transition = transition;
 	    this.dirvier.set(path);
 	  },
 	
@@ -176,7 +179,9 @@
 	        item = _map[item];
 	      }
 	      if (item instanceof Component) {
-	        item = { component: item };
+	        item = {
+	          component: item
+	        };
 	      }
 	      if (!item) throw new Error('Invalid route `' + pattern + '`');
 	      item.pattern = pattern;
@@ -398,7 +403,9 @@
 	  var self = this;
 	  utils.each(routes, function (_name, _route) {
 	    //判断是字符串还是一个对象，并都将 _route 转为对象
-	    var route = utils.isString(_route) ? { 'target': _route } : _route;
+	    var route = utils.isString(_route) ? {
+	      'target': _route
+	    } : _route;
 	    //尝试从名称中解析出 method 和 pattern
 	    var name = (_name || '/').toString();
 	    var nameParts = name.split(' ');
@@ -444,7 +451,9 @@
 	 **/
 	Router.prototype._createRouteInstance = function (srcRoute, url, params) {
 	  var self = this;
-	  var routeInstance = { __proto__: srcRoute };
+	  var routeInstance = {
+	    __proto__: srcRoute
+	  };
 	  routeInstance.params = params;
 	  if (routeInstance.action) {
 	    var urlParts = url.split('/');
@@ -468,7 +477,7 @@
 	  if (utils.isNull(url)) {
 	    return routeArray;
 	  }
-	  url = url.replace(/\/\//igm, '/');
+	  //url = url.replace(/\/\//igm, '/');
 	  utils.each(self.table, function (i, route) {
 	    route.expr.lastIndex = 0;
 	    if (!route.expr.test(url)) return;
@@ -880,23 +889,22 @@
 	   * @method copy
 	   * @param {Object} src 源对象
 	   * @param {Object} dst 目标对象
-	   * @param {String} err 错误消息模板
 	   * @static
 	   */
-	  ntils.copy = function (src, dst, igonres, err) {
+	  ntils.copy = function (src, dst, igonres) {
 	    dst = dst || (this.isArray(src) ? [] : {});
 	    this.each(src, function (key) {
-	      if (igonres && igonres.indexOf(key) > -1) {
-	        if (err) throw new Error(err.replace('{name}', key));
-	        return;
-	      }
-	      try {
-	        if (Object.getOwnPropertyDescriptor) {
+	      if (igonres && igonres.indexOf(key) > -1) return;
+	      delete dst[key];
+	      if (Object.getOwnPropertyDescriptor) {
+	        try {
 	          Object.defineProperty(dst, key, Object.getOwnPropertyDescriptor(src, key));
-	        } else {
+	        } catch (ex) {
 	          dst[key] = src[key];
 	        }
-	      } catch (ex) {}
+	      } else {
+	        dst[key] = src[key];
+	      }
 	    });
 	    return dst;
 	  };
@@ -987,7 +995,7 @@
 	        writable: false //能不能用「赋值」运算更改
 	      });
 	    } catch (err) {
-	      //noop
+	      obj[name] = value;
 	    }
 	  };
 	
@@ -1006,20 +1014,36 @@
 	  /**
 	   * 创建一个对象
 	   */
-	  ntils.create = function (proto) {
-	    if (Object.create) return Object.create(proto);
-	    return { __proto__: proto };
+	  ntils.create = function (proto, props) {
+	    if (Object.create) return Object.create(proto, props);
+	    var Cotr = function Cotr() {};
+	    Cotr.prototype = proto;
+	    var obj = new Cotr();
+	    if (props) this.copy(props, obj);
+	    return obj;
 	  };
 	
 	  /**
 	   * 设置 proto
+	   * 在不支持 setPrototypeOf 也不支持 __proto__ 的浏览器
+	   * 中，会采用 copy 方式
 	   */
-	  ntils.setProto = function (obj, prototype) {
-	    if (obj.__proto__) {
-	      return ntils.setPrototype(obj.__proto__);
+	  ntils.setPrototypeOf = function (obj, proto) {
+	    if (Object.setPrototypeOf) {
+	      return Object.setPrototypeOf(obj, proto || this.create(null));
 	    } else {
-	      obj.__proto__ = prototype;
+	      if (!('__proto__' in Object)) this.copy(proto, obj);
+	      obj.__proto__ = proto;
 	    }
+	  };
+	
+	  /**
+	   * 获取 proto
+	   */
+	  ntils.getPrototypeOf = function (obj) {
+	    if (obj.__proto__) return obj.__proto__;
+	    if (Object.getPrototypeOf) return Object.getPrototypeOf(obj);
+	    if (obj.constructor) return obj.constructor.prototype;
 	  };
 	
 	  /**
@@ -1174,16 +1198,26 @@
 	  };
 	
 	  /**
+	   * 编码正则字符串
+	   */
+	  ntils.escapeRegExp = function (str) {
+	    return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	  };
+	
+	  /**
 	   * 解析字符串为 dom 
 	   * @param {string} str 字符串
 	   * @returns {HTMLNode} 解析后的 DOM 
 	   */
 	  ntils.parseDom = function (str) {
-	    this._PARSER_DOM_DIV = this._PARSER_DOM_DIV || document.createElement('dev');
-	    this._PARSER_DOM_DIV.innerHTML = str;
-	    var domNodes = this.toArray(this._PARSER_DOM_DIV.childNodes);
-	    this._PARSER_DOM_DIV.innerHTML = '';
-	    return domNodes;
+	    this._PDD_ = this._PDD_ || document.createElement('div');
+	    this._PDD_.innerHTML = ntils.trim(str);
+	    var firstNode = this._PDD_.childNodes[0];
+	    //先 clone 一份再通过 innerHTML 清空
+	    //否则 IE9 下，清空时会导出返回的 DOM 没有子结点
+	    if (firstNode) firstNode = firstNode.cloneNode(true);
+	    this._PDD_.innerHTML = '';
+	    return firstNode;
 	  };
 	})( false ? window.ntils = {} : exports);
 
@@ -1304,7 +1338,7 @@
 	    this.emiter = new EventEmitter(eventTarget);
 	    this.emiter.addListener(this.decorates[0] || 'click', function () {
 	      if (!this.scope || !this.scope.$router) return;
-	      this.scope.$router.go(this.path);
+	      this.scope.$router.go(this.path, eventTarget.transition);
 	    }.bind(this), false);
 	  },
 	
