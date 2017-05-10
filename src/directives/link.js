@@ -1,14 +1,12 @@
-/*istanbul ignore next*/'use strict';
-
-var mokit = require('mokit-plugin').mokit;
-var Directive = mokit.Directive;
-var EventEmitter = mokit.EventEmitter;
+const mokit = require('mokit-plugin').mokit;
+const Directive = mokit.Directive;
+const EventEmitter = mokit.EventEmitter;
 
 module.exports = new Directive({
   literal: true,
 
-  bind: function /*istanbul ignore next*/bind() {
-    var eventTarget = this.node.$target || this.node;
+  bind: function () {
+    let eventTarget = this.node.$target || this.node;
     this.emiter = new EventEmitter(eventTarget);
     this.emiter.addListener(this.decorates[0] || 'click', function () {
       if (!this.scope || !this.scope.$router) return;
@@ -16,11 +14,11 @@ module.exports = new Directive({
     }.bind(this), false);
   },
 
-  unbind: function /*istanbul ignore next*/unbind() {
+  unbind: function () {
     this.emiter.removeListener();
   },
 
-  update: function /*istanbul ignore next*/update(path) {
+  update: function (path) {
     this.path = path;
   }
 

@@ -1,16 +1,14 @@
-/*istanbul ignore next*/'use strict';
+const mokit = require('mokit-plugin').mokit;
+const Class = mokit.Class;
+const EventEmitter = mokit.EventEmitter;
 
-var mokit = require('mokit-plugin').mokit;
-var Class = mokit.Class;
-var EventEmitter = mokit.EventEmitter;
-
-var SEPARATOR = '#!';
-var ROOT_PATH = '/';
+const SEPARATOR = '#!';
+const ROOT_PATH = '/';
 
 /**
  * 基于 has 的路由驱动
  */
-var HashDriver = new Class({
+const HashDriver = new Class({
   $name: 'HashDriver',
   $extends: EventEmitter,
 
@@ -19,7 +17,7 @@ var HashDriver = new Class({
    * @param {Object} router 路径实例
    * @returns {void} 无返回
    */
-  constructor: function /*istanbul ignore next*/constructor(router) {
+  constructor: function (router) {
     this.$super();
     this.router = router;
     window.addEventListener('hashchange', function () {
@@ -31,7 +29,7 @@ var HashDriver = new Class({
    * 获取当前路径
    * @returns {string} 当前路径
    */
-  get: function /*istanbul ignore next*/get() {
+  get: function () {
     return location.hash.split(SEPARATOR)[1] || ROOT_PATH;
   },
 
@@ -40,7 +38,7 @@ var HashDriver = new Class({
    * @param {string} path 要转到的路径
    * @returns {void} 无返回
    */
-  set: function /*istanbul ignore next*/set(path) {
+  set: function (path) {
     path = path || ROOT_PATH;
     location.hash = SEPARATOR + path;
   },
@@ -50,7 +48,7 @@ var HashDriver = new Class({
    * @param {string} path 将要转到的路径
    * @returns {void} 无返回
    */
-  _onChange: function /*istanbul ignore next*/_onChange(path) {
+  _onChange: function (path) {
     path = path || this.get() || '';
     if (path[0] != ROOT_PATH) path = ROOT_PATH + path;
     this.emit('changed', path);

@@ -1,18 +1,16 @@
-/*istanbul ignore next*/'use strict';
+const mokit = require('mokit-plugin').mokit;
+const utils = mokit.utils;
+const Class = mokit.Class;
+const EventEmitter = mokit.EventEmitter;
+const Component = mokit.Component;
+const RouterBase = require('general-router');
+const HashDirver = require('./drivers/hash');
+const RouterView = require('./components/router-view');
+const LinkDirective = require('./directives/link');
 
-var mokit = require('mokit-plugin').mokit;
-var utils = mokit.utils;
-var Class = mokit.Class;
-var EventEmitter = mokit.EventEmitter;
-var Component = mokit.Component;
-var RouterBase = require('general-router');
-var HashDirver = require('./drivers/hash');
-var RouterView = require('./components/router-view');
-var LinkDirective = require('./directives/link');
+const ROOT_PATH = '/';
 
-var ROOT_PATH = '/';
-
-var Router = new Class({
+const Router = new Class({
   $name: 'Router',
   $extends: RouterBase,
 
@@ -21,7 +19,7 @@ var Router = new Class({
    * @param {Object} options 选项
    * @returns {void} 无返回
    */
-  constructor: function /*istanbul ignore next*/constructor(options) {
+  constructor: function (options) {
     this.$super();
     options = options || utils.create(null);
     if (options.view) this.view = options.view;
@@ -57,12 +55,12 @@ var Router = new Class({
    * @param {string} path 将要转到的路径
    * @returns {void} 无返回
    */
-  _onChanged: function /*istanbul ignore next*/_onChanged(path) {
+  _onChanged: function (path) {
     path = path || '/';
-    var fromPath = this.dirvier.get();
-    var toPath = this.resolveUri(path, fromPath);
+    let fromPath = this.dirvier.get();
+    let toPath = this.resolveUri(path, fromPath);
     toPath = path.split('?')[0].split('!')[0];
-    var routes = this.get(toPath);
+    let routes = this.get(toPath);
     if (!routes || routes.length < 1) return;
     this.route = routes[0];
     this.route.path = toPath;
@@ -83,7 +81,7 @@ var Router = new Class({
    * @param {Object} transition 转场动画
    * @returns {void} 无返回
    */
-  go: function /*istanbul ignore next*/go(path, transition) {
+  go: function (path, transition) {
     this._transition = transition;
     this.dirvier.set(path);
   },
@@ -93,10 +91,10 @@ var Router = new Class({
    * @param {Object} map 路由配置
    * @returns {void} 无返回
    */
-  map: function /*istanbul ignore next*/map(_map) {
-    utils.each(_map, function (pattern, item) {
+  map: function (map) {
+    utils.each(map, function (pattern, item) {
       if (utils.isString(item)) {
-        item = _map[item];
+        item = map[item];
       }
       if (item instanceof Component) {
         item = {
@@ -115,15 +113,15 @@ var Router = new Class({
    * @param {string} fromUri 参数路径
    * @returns {string} 解析后的相关路径
    */
-  resolveUri: function /*istanbul ignore next*/resolveUri(toUri, fromUri) {
+  resolveUri: function (toUri, fromUri) {
     toUri = toUri || ROOT_PATH;
     if (toUri[0] == ROOT_PATH) return toUri;
     fromUri = fromUri || ROOT_PATH;
     fromUri = fromUri.split('?')[0].split('#')[0];
-    var baseDir = fromUri.substring(0, fromUri.lastIndexOf(ROOT_PATH));
-    var uriParts = toUri.split('#')[0].split(ROOT_PATH);
-    var uriHash = toUri.split('#')[1];
-    var newUriParts = baseDir.length > 0 ? baseDir.split(ROOT_PATH) : [];
+    let baseDir = fromUri.substring(0, fromUri.lastIndexOf(ROOT_PATH));
+    let uriParts = toUri.split('#')[0].split(ROOT_PATH);
+    let uriHash = toUri.split('#')[1];
+    let newUriParts = baseDir.length > 0 ? baseDir.split(ROOT_PATH) : [];
     uriParts.forEach(function (part) {
       if (part == '..') {
         newUriParts.pop();
@@ -138,12 +136,12 @@ var Router = new Class({
    * 解析查询字符串并生成查询参数对象
    * @returns {Object} 查询参数对象
    */
-  parseQuery: function /*istanbul ignore next*/parseQuery() {
-    var queryString = (location.href.split('#')[1] || '').split('?')[1] || '';
-    var pairs = queryString.split('&');
-    var query = utils.create(null);
+  parseQuery: function () {
+    let queryString = (location.href.split('#')[1] || '').split('?')[1] || '';
+    let pairs = queryString.split('&');
+    let query = utils.create(null);
     pairs.forEach(function (pair) {
-      var strs = pair.split('=');
+      let strs = pair.split('=');
       query[strs[0]] = strs[1];
     }, this);
     return query;
@@ -155,7 +153,7 @@ var Router = new Class({
    * @param {element} element 挂载元素
    * @returns {Component} 应用根件实例
    */
-  start: function /*istanbul ignore next*/start(root, element) {
+  start: function (root, element) {
     this.app = new root({
       _router: this
     });
@@ -178,9 +176,9 @@ Router.install = function (owner) {
 
   //为组件实例扩展 $router 属性
   Object.defineProperty(owner.prototype, '$router', {
-    get: function /*istanbul ignore next*/get() {
+    get: function () {
       if (this instanceof RouterView) {
-        return this._router || this.$parent && this.$parent.$router;
+        return this._router || (this.$parent && this.$parent.$router);
       } else if (this.$parent) {
         return this.$parent.$router;
       } else if (!this.$parent) {
@@ -193,7 +191,7 @@ Router.install = function (owner) {
 
   //为组件实例扩展 $route 属性
   Object.defineProperty(owner.prototype, '$route', {
-    get: function /*istanbul ignore next*/get() {
+    get: function () {
       return this.$router && this.$router.route;
     }
   });
@@ -203,6 +201,7 @@ Router.install = function (owner) {
 
   //添加 link 指令
   owner.directive('link', LinkDirective);
+
 };
 
 module.exports = Router;

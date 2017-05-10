@@ -1,6 +1,6 @@
 {
   "name": "mokit-router",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "mokit-router",
   "main": "./lib/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "stop": "./scripts/stop.sh",
     "restart": "./scripts/restart.sh",
     "clear": "./scripts/clear.sh",
-    "lint": "eslint ./lib",
+    "lint": "eslint ./src",
     "build": "./scripts/build.sh",
     "watch": "./scripts/watch.sh",
     "test": "./scripts/test.sh",
@@ -17,10 +17,11 @@
   "author": "",
   "license": "Apache License",
   "peerDependencies": {
-    "mokit": "^3.0.0-beta37"
+    "mokit": "^3.0.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.18.2",
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.8",
@@ -39,6 +40,7 @@
     "json-loader": "^0.5.4",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
+    "mokit": "^3.1.0",
     "nokit-filter-proxy": "0.0.8",
     "nokitjs": "^1.26.1",
     "ntils": "^2.0.2",
@@ -48,7 +50,6 @@
   },
   "dependencies": {
     "general-router": "^0.0.3",
-    "mokit": "^3.0.0-beta43",
     "mokit-plugin": "^1.0.5"
   }
 }
